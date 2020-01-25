@@ -59,7 +59,7 @@ public class ListenController {
                       log.trace("read from pipe {}", read);
                       rateLimiter.acquire(read);
                       if (read > 0) {
-                        outputStream.write(cache);
+                        outputStream.write(cache, 0, read);
                         sink.next(dataBuffer);
                       } else {
                         sink.complete();
