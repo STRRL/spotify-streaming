@@ -9,6 +9,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import xyz.gianlu.librespot.FileConfiguration;
+import xyz.gianlu.librespot.player.AudioOutput;
 import xyz.gianlu.librespot.player.Player;
 
 /**
@@ -49,6 +50,12 @@ public class StreamServerConfiguration {
   @Nonnull
   public FileConfiguration fileConfiguration(@Nonnull ApplicationArguments args)
       throws IOException {
-    return new FileConfiguration(args.getSourceArgs());
+    final FileConfiguration fileConfiguration = new FileConfiguration(args.getSourceArgs());
+    if (fileConfiguration.output().equals(AudioOutput.PIPE)) {
+      return fileConfiguration;
+    } else {
+      throw new InvalidPipeException(
+          "We only support with pipe mode, please setup player.output=\"PIPE\" and specific a pipe file in config.toml");
+    }
   }
 }
