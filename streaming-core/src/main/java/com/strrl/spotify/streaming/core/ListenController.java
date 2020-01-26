@@ -36,8 +36,19 @@ public class ListenController {
    */
   public ListenController(PipeProperties pipeProperties) {
     this.pipeProperties = pipeProperties;
-    if (!pipeProperties.getPath().toFile().exists()) {
-      log.warn("pipe file not exist {}", pipeProperties.getPath());
+    switch (prestartChecklist(pipeProperties)){
+      case 0:{
+        log.info("Pre-start checklist successfully finished.");
+        break;
+      }
+      case 1:{
+        log.info("Starting to create pipe file...");
+        //TODO: Detect Config File and Create using static function createPipeFile(String pipePath)
+      }
+      default:{
+        log.error("Fatal Error: Illegal Instruction.");
+        System.exit(-1);
+      }
     }
   }
 
@@ -48,7 +59,6 @@ public class ListenController {
   }
 
   private synchronized Flux<DataBuffer> origin() throws FileNotFoundException {
-
     if (this.originCache != null) {
       return originCache;
     } else {
@@ -63,7 +73,7 @@ public class ListenController {
                 final int read;
                 try {
                   read = this.fileInputStream.read(cache);
-                  log.trace("read from pipe {}", read);
+                  log.trace("Read from pipe {}", read);
                   rateLimiter.acquire(read);
                   if (read > 0) {
                     outputStream.write(cache, 0, read);
@@ -144,5 +154,33 @@ public class ListenController {
     final DataBuffer dataBuffer = dataBufferFactory.allocateBuffer();
     dataBuffer.write(this.wavHeader());
     return Mono.just(dataBuffer);
+  }
+
+  private static int prestartChecklist(PipeProperties pipeProperties) {
+    if (!pipeProperties.getPath().toFile().exists()) {
+      log.warn("Pipe file not exist: {}", pipeProperties.getPath());
+      return 1;
+    } else {
+      log.info("Pipe file exists. The Steraming URL: http://localhost:<PORT>/listen");
+      return 0;
+    }
+  }
+
+  private static int createPipeFile(String pipePath){
+    ProcessBuilder processBuilder = new ProcessBuilder();
+    processBuilder.command("mkfifo " + pipePath);
+    try {
+      Process process = processBuilder.start();
+      int exitVal = process.waitFor();
+      if (exitVal == 0){
+        log.info("Pipe file automated created successfully.");
+        return 0;
+      } else {
+        log.error("Failed to create pipe file.");
+      }
+    } catch (IOException | InterruptedException e){
+      e.printStackTrace();
+    }
+    return -1;
   }
 }
