@@ -8,7 +8,10 @@ In order to enhance the audio output, NO PIRACY.
 
 ## Usage
 
-TODO
+- Run Program by using `java -Dserver.port=<PORT> -jar ./<PROGRAM>` first, this will extract config file:`config.toml` and exit. (First Time)
+- Change the config in `config.toml`, and ENSURE `player.output` is set to `PIPE`, ENSURE `player.pipe` is set to a writable location which will finally be a pipe file. (First Time)
+- Re-run program using the same command. Start up Spotify Client and take control of whatever you want.
+- According to console output, insert the address to your most favorite player (Like FB2K) and do whatever you want. 
 
 ## License
 
