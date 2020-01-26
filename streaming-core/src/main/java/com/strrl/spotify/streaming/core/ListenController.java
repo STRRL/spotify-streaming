@@ -1,6 +1,7 @@
 package com.strrl.spotify.streaming.core;
 
 import com.google.common.util.concurrent.RateLimiter;
+import com.strrl.spotify.streaming.core.config.PipeProperties;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,20 +37,6 @@ public class ListenController {
    */
   public ListenController(PipeProperties pipeProperties) {
     this.pipeProperties = pipeProperties;
-    switch (prestartChecklist(pipeProperties)){
-      case 0:{
-        log.info("Pre-start checklist successfully finished.");
-        break;
-      }
-      case 1:{
-        log.info("Starting to create pipe file...");
-        //TODO: Detect Config File and Create using static function createPipeFile(String pipePath)
-      }
-      default:{
-        log.error("Fatal Error: Illegal Instruction.");
-        System.exit(-1);
-      }
-    }
   }
 
   /** attaching audio streaming. */
@@ -154,33 +141,5 @@ public class ListenController {
     final DataBuffer dataBuffer = dataBufferFactory.allocateBuffer();
     dataBuffer.write(this.wavHeader());
     return Mono.just(dataBuffer);
-  }
-
-  private static int prestartChecklist(PipeProperties pipeProperties) {
-    if (!pipeProperties.getPath().toFile().exists()) {
-      log.warn("Pipe file not exist: {}", pipeProperties.getPath());
-      return 1;
-    } else {
-      log.info("Pipe file exists. The Steraming URL: http://localhost:<PORT>/listen");
-      return 0;
-    }
-  }
-
-  private static int createPipeFile(String pipePath){
-    ProcessBuilder processBuilder = new ProcessBuilder();
-    processBuilder.command("mkfifo " + pipePath);
-    try {
-      Process process = processBuilder.start();
-      int exitVal = process.waitFor();
-      if (exitVal == 0){
-        log.info("Pipe file automated created successfully.");
-        return 0;
-      } else {
-        log.error("Failed to create pipe file.");
-      }
-    } catch (IOException | InterruptedException e){
-      e.printStackTrace();
-    }
-    return -1;
   }
 }
