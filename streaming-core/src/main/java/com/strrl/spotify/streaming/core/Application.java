@@ -4,6 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
+ * Spring boot application main class.
+ *
  * @author strrl
  * @date 2020/1/24 21:51
  */

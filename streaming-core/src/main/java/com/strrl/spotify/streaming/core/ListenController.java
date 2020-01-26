@@ -1,6 +1,10 @@
 package com.strrl.spotify.streaming.core;
 
 import com.google.common.util.concurrent.RateLimiter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -11,12 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-
 /**
+ * Listen controller.
+ *
  * @author strrl
  * @date 2020/1/24 22:36
  */
@@ -28,6 +29,11 @@ public class ListenController {
   private Flux<DataBuffer> originCache;
   private FileInputStream fileInputStream;
 
+  /**
+   * Default constructor.
+   *
+   * @param pipeProperties config contains pipe path.
+   */
   public ListenController(PipeProperties pipeProperties) {
     this.pipeProperties = pipeProperties;
     if (!pipeProperties.getPath().toFile().exists()) {
@@ -35,6 +41,7 @@ public class ListenController {
     }
   }
 
+  /** attaching audio streaming. */
   @GetMapping(value = "/listen", produces = "audio/wav")
   public Flux<DataBuffer> listen() throws FileNotFoundException {
     return this.waveHeader().concatWith(this.origin().doOnTerminate(() -> {}));
@@ -47,29 +54,29 @@ public class ListenController {
     } else {
       this.fileInputStream = new FileInputStream(pipeProperties.getPath().toString());
       final RateLimiter rateLimiter = RateLimiter.create(44100 * 2 * 2);
-      this.originCache =
-          Flux.<DataBuffer>generate(
-                  (sink) -> {
-                    final DataBuffer dataBuffer = dataBufferFactory.allocateBuffer();
-                    final OutputStream outputStream = dataBuffer.asOutputStream();
-                    byte[] cache = new byte[1024 * 4];
-                    final int read;
-                    try {
-                      read = this.fileInputStream.read(cache);
-                      log.trace("read from pipe {}", read);
-                      rateLimiter.acquire(read);
-                      if (read > 0) {
-                        outputStream.write(cache, 0, read);
-                        sink.next(dataBuffer);
-                      } else {
-                        sink.complete();
-                      }
-                    } catch (IOException e) {
-                      e.printStackTrace();
-                    }
-                  })
-              .subscribeOn(Schedulers.elastic())
-              .share();
+      final Flux<DataBuffer> generated =
+          Flux.generate(
+              sink -> {
+                final DataBuffer dataBuffer = dataBufferFactory.allocateBuffer();
+                final OutputStream outputStream = dataBuffer.asOutputStream();
+                byte[] cache = new byte[1024 * 4];
+                final int read;
+                try {
+                  read = this.fileInputStream.read(cache);
+                  log.trace("read from pipe {}", read);
+                  rateLimiter.acquire(read);
+                  if (read > 0) {
+                    outputStream.write(cache, 0, read);
+                    sink.next(dataBuffer);
+                  } else {
+                    sink.complete();
+                  }
+                } catch (IOException e) {
+                  e.printStackTrace();
+                  sink.error(e);
+                }
+              });
+      this.originCache = generated.subscribeOn(Schedulers.elastic()).share();
       this.originCache.subscribeOn(Schedulers.elastic()).subscribe();
 
       return this.originCache;
@@ -82,8 +89,8 @@ public class ListenController {
     long channel = 2;
     long format = 16;
     final long length = Integer.MAX_VALUE - 36;
-    long totalDataLen = length;
-    long bitrate = srate * channel * format;
+    final long totalDataLen = length;
+    final long bitrate = srate * channel * format;
 
     header[0] = 'R';
     header[1] = 'I';

@@ -1,5 +1,11 @@
 package com.strrl.spotify.streaming.core;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import xyz.gianlu.librespot.AbsConfiguration;
@@ -9,14 +15,9 @@ import xyz.gianlu.librespot.core.Session;
 import xyz.gianlu.librespot.core.ZeroconfServer;
 import xyz.gianlu.librespot.mercury.MercuryClient;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 /**
+ * Startup spotify server.
+ *
  * @author strrl
  * @date 2020/1/24 22:04
  */
