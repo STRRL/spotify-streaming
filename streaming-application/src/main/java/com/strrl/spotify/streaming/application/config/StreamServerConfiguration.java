@@ -1,6 +1,10 @@
-package com.strrl.spotify.streaming.core.config;
+package com.strrl.spotify.streaming.application.config;
 
+import com.strrl.spotify.streaming.core.audio.supplier.InputStreamPcmSupplier;
+import com.strrl.spotify.streaming.core.audio.supplier.LazyFileInputStream;
+import com.strrl.spotify.streaming.core.audio.supplier.PcmSupplier;
 import com.strrl.spotify.streaming.core.exception.InvalidPipeException;
+import com.strrl.spotify.streaming.core.util.BitRateLimiterUtil;
 import java.io.File;
 import java.io.IOException;
 import javax.annotation.Nonnull;
@@ -57,5 +61,14 @@ public class StreamServerConfiguration {
       throw new InvalidPipeException(
           "We only support with pipe mode, please setup player.output=\"PIPE\" and specific a pipe file in config.toml");
     }
+  }
+
+  @Bean
+  @Nonnull
+  public PcmSupplier pcmSupplier(@Nonnull PipeProperties pipeProperties) {
+    return new InputStreamPcmSupplier(
+        4096,
+        BitRateLimiterUtil.create(44100, 2, 16),
+        new LazyFileInputStream(pipeProperties.getPath().toFile()));
   }
 }

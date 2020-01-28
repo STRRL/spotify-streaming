@@ -1,20 +1,18 @@
-package com.strrl.spotify.streaming.core;
+package com.strrl.spotify.streaming.application;
 
-import com.google.common.util.concurrent.RateLimiter;
-import com.strrl.spotify.streaming.core.config.PipeProperties;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
+import com.strrl.spotify.streaming.core.audio.supplier.PcmSupplier;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.UnpooledByteBufAllocator;
+import javax.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 /**
  * Listen controller.
@@ -25,59 +23,29 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 @RestController
 public class ListenController {
-  private final PipeProperties pipeProperties;
-  DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
-  private Flux<DataBuffer> originCache;
-  private FileInputStream fileInputStream;
 
+  public static final NettyDataBufferFactory NETTY_DATA_BUFFER_FACTORY =
+      new NettyDataBufferFactory(UnpooledByteBufAllocator.DEFAULT);
+  DataBufferFactory dataBufferFactory = new DefaultDataBufferFactory();
+  private PcmSupplier pcmSupplier;
   /**
    * Default constructor.
    *
-   * @param pipeProperties config contains pipe path.
+   * @param pcmSupplier PCM audio data stream supplier.
    */
-  public ListenController(PipeProperties pipeProperties) {
-    this.pipeProperties = pipeProperties;
+  public ListenController(PcmSupplier pcmSupplier) {
+    this.pcmSupplier = pcmSupplier;
   }
 
   /** attaching audio streaming. */
   @GetMapping(value = "/listen", produces = "audio/wav")
-  public Flux<DataBuffer> listen() throws FileNotFoundException {
-    return this.waveHeader().concatWith(this.origin().doOnTerminate(() -> {}));
+  public Flux<DataBuffer> listen() {
+    return this.waveHeader().concatWith(this.pcmSupplier.attach().map(this::convert));
   }
 
-  private synchronized Flux<DataBuffer> origin() throws FileNotFoundException {
-    if (this.originCache != null) {
-      return originCache;
-    } else {
-      this.fileInputStream = new FileInputStream(pipeProperties.getPath().toString());
-      final RateLimiter rateLimiter = RateLimiter.create(44100 * 2 * 2);
-      final Flux<DataBuffer> generated =
-          Flux.generate(
-              sink -> {
-                final DataBuffer dataBuffer = dataBufferFactory.allocateBuffer();
-                final OutputStream outputStream = dataBuffer.asOutputStream();
-                byte[] cache = new byte[1024 * 4];
-                final int read;
-                try {
-                  read = this.fileInputStream.read(cache);
-                  log.trace("Read from pipe {}", read);
-                  rateLimiter.acquire(read);
-                  if (read > 0) {
-                    outputStream.write(cache, 0, read);
-                    sink.next(dataBuffer);
-                  } else {
-                    sink.complete();
-                  }
-                } catch (IOException e) {
-                  e.printStackTrace();
-                  sink.error(e);
-                }
-              });
-      this.originCache = generated.subscribeOn(Schedulers.elastic()).share();
-      this.originCache.subscribeOn(Schedulers.elastic()).subscribe();
-
-      return this.originCache;
-    }
+  @Nonnull
+  private DataBuffer convert(@Nonnull ByteBuf buf) {
+    return NETTY_DATA_BUFFER_FACTORY.wrap(buf);
   }
 
   private byte[] wavHeader() {

@@ -1,7 +1,7 @@
-package com.strrl.spotify.streaming.core.runner;
+package com.strrl.spotify.streaming.application.runner;
 
 import com.google.common.io.CharStreams;
-import com.strrl.spotify.streaming.core.config.PipeProperties;
+import com.strrl.spotify.streaming.application.config.PipeProperties;
 import com.strrl.spotify.streaming.core.exception.InvalidPipeException;
 import java.io.IOException;
 import java.io.InputStreamReader;

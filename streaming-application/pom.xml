@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>streaming-application</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <executable>true</executable>
+        </configuration>
+        <executions>
+          <execution>
+            <configuration>
+              <classifier>exec</classifier>
+            </configuration>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <id>repackage</id>
+          </execution>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+            <id>build-info</id>
+            <phase>compile</phase>
+          </execution>
+        </executions>
+        <groupId>org.springframework.boot</groupId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>streaming-core</artifactId>
+      <groupId>com.strrl</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-webflux</artifactId>
+      <groupId>org.springframework.boot</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>streaming-parent</artifactId>
+    <groupId>com.strrl</groupId>
+    <relativePath>../streaming-parent</relativePath>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+</project>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>streaming-parent</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <configLocation>google_checks.xml</configLocation>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <id>check-style</id>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.1.0</version>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <artifactId>streaming-core</artifactId>
+        <groupId>com.strrl</groupId>
+        <version>1.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <artifactId>lombok</artifactId>
+        <groupId>org.projectlombok</groupId>
+        <scope>provided</scope>
+        <version>1.18.10</version>
+      </dependency>
+      <dependency>
+        <artifactId>librespot-core</artifactId>
+        <exclusions>
+          <exclusion>
+            <artifactId>slf4j-simple</artifactId>
+            <groupId>org.slf4j</groupId>
+          </exclusion>
+        </exclusions>
+        <groupId>xyz.gianlu.librespot</groupId>
+        <scope>compile</scope>
+        <version>1.2.1</version>
+      </dependency>
+      <dependency>
+        <artifactId>guava</artifactId>
+        <groupId>com.google.guava</groupId>
+        <version>28.2-jre</version>
+      </dependency>
+      <dependency>
+        <artifactId>logback-classic</artifactId>
+        <groupId>ch.qos.logback</groupId>
+        <version>1.2.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <groupId>com.strrl</groupId>
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
+  <parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <groupId>org.springframework.boot</groupId>
+    <version>2.2.1.RELEASE</version>
+  </parent>
+
+  <version>1.1-SNAPSHOT</version>
+
+</project>
