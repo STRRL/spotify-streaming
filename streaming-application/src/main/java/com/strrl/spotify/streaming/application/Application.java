@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core;
+package com.strrl.spotify.streaming.application;
 
 import com.strrl.spotify.streaming.core.util.OSUtils;
 import com.strrl.spotify.streaming.core.util.OSUtils.OSType;

@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core.config;
+package com.strrl.spotify.streaming.application.config;
 
 import java.nio.file.Path;
 import lombok.AllArgsConstructor;

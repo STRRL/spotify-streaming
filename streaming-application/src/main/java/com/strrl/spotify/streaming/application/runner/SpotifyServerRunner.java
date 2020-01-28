@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core.runner;
+package com.strrl.spotify.streaming.application.runner;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;

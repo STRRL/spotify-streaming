@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core;
+package com.strrl.spotify.streaming.application;
 
 import com.strrl.spotify.streaming.core.audio.supplier.PcmSupplier;
 import io.netty.buffer.ByteBuf;

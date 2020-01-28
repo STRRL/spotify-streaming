@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core.config;
+package com.strrl.spotify.streaming.application.config;
 
 import com.strrl.spotify.streaming.core.audio.supplier.InputStreamPcmSupplier;
 import com.strrl.spotify.streaming.core.audio.supplier.LazyFileInputStream;
