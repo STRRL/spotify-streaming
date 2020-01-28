@@ -9,15 +9,12 @@ import javax.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * <p>
- *
  * @author strrl
  * @date 2020/1/28 15:02
  */
 public class LazyFileInputStream extends InputStream {
 
-  @Nonnull
-  private File target;
+  @Nonnull private File target;
   private boolean initialized;
   private InputStream backend;
 

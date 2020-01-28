@@ -1,39 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>com.strrl</groupId>
-    <artifactId>streaming-parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
-    <relativePath>../streaming-parent</relativePath>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-
   <artifactId>streaming-core</artifactId>
-
-
   <dependencies>
     <dependency>
-      <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
+      <groupId>io.projectreactor</groupId>
     </dependency>
     <dependency>
-      <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
+      <groupId>io.netty</groupId>
     </dependency>
     <dependency>
-      <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
+      <groupId>org.springframework.boot</groupId>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>xyz.gianlu.librespot</groupId>
       <artifactId>librespot-core</artifactId>
       <exclusions>
         <exclusion>
@@ -41,19 +30,30 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
+      <groupId>xyz.gianlu.librespot</groupId>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <groupId>com.google.guava</groupId>
     </dependency>
     <dependency>
-      <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
+      <groupId>io.projectreactor</groupId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+      <groupId>ch.qos.logback</groupId>
     </dependency>
   </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+
+
+  <parent>
+    <artifactId>streaming-parent</artifactId>
+    <groupId>com.strrl</groupId>
+    <relativePath>../streaming-parent</relativePath>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
 </project>
