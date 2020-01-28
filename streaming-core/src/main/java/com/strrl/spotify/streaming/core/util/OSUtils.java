@@ -1,4 +1,4 @@
-package com.strrl.spotify.streaming.core;
+package com.strrl.spotify.streaming.core.util;
 
 import java.util.Locale;
 

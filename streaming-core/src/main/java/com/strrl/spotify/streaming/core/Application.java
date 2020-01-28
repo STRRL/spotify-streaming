@@ -1,6 +1,7 @@
 package com.strrl.spotify.streaming.core;
 
-import com.strrl.spotify.streaming.core.OSUtils.OSType;
+import com.strrl.spotify.streaming.core.util.OSUtils;
+import com.strrl.spotify.streaming.core.util.OSUtils.OSType;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
