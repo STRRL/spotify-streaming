@@ -65,8 +65,9 @@ public class LazyFileInputStream extends InputStream {
 
   @Override
   public void close() throws IOException {
-    this.acquireInitialized();
-    this.backend.close();
+    if (this.initialized) {
+      this.backend.close();
+    }
   }
 
   @Override
