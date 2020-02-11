@@ -41,9 +41,9 @@ public class InputStreamPcmSupplier implements PcmSupplier {
                 final int read;
                 try {
                   read = this.in.read(buffer);
-                  log.trace("Read from input stream {}", read);
-                  rateLimiter.acquire(read);
                   if (read > 0) {
+                    log.trace("Read from input stream {}", read);
+                    rateLimiter.acquire(read);
                     result.writeBytes(buffer, 0, read);
                     sink.next(result);
                   } else {
