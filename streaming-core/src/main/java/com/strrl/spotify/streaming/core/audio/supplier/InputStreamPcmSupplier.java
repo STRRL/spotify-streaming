@@ -1,7 +1,6 @@
 package com.strrl.spotify.streaming.core.audio.supplier;
 
 import com.google.common.util.concurrent.RateLimiter;
-import com.strrl.spotify.streaming.core.exception.PipeAlreadyClosedException;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class InputStreamPcmSupplier implements PcmSupplier {
     if (cache == null) {
       final byte[] buffer = new byte[cap];
       this.cache =
-          Flux.<ByteBuf>generate(
+          Flux.generate(
               sink -> {
                 final ByteBuf result = Unpooled.buffer(cap, cap);
                 final int read;
@@ -54,7 +53,7 @@ public class InputStreamPcmSupplier implements PcmSupplier {
                   log.error("Can not fetch data from input stream.", e);
                   sink.error(e);
                 }
-              }).onErrorResume(PipeAlreadyClosedException.class,e -> Flux.empty());
+              });
     }
     return cache;
   }
