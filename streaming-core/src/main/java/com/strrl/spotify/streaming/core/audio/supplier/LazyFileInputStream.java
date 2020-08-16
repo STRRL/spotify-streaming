@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -39,27 +38,25 @@ public class LazyFileInputStream extends InputStream {
       throw PipeAlreadyClosedException.of();
     }
     if (!this.initialized) {
-      final Future<?> future =
-          FIFO_FILE_INIT_THREAD_POOL.submit(
-              () -> {
-                try {
-                  this.backend = new FileInputStream(target);
-                  this.initialized = true;
-                } catch (FileNotFoundException e) {
-                  throw new RuntimeException(e);
-                }
-              });
-      for (; ; ) {
-        if (!future.isDone()) {
-          if (this.closed) {
-            break;
-          } else {
+      FIFO_FILE_INIT_THREAD_POOL.submit(
+          () -> {
             try {
-              Thread.sleep(100);
-            } catch (InterruptedException e) {
+              this.backend = new FileInputStream(target);
+              this.initialized = true;
+            } catch (FileNotFoundException e) {
               throw new RuntimeException(e);
             }
-          }
+          });
+
+      for (; ; ) {
+        if (this.closed || this.initialized) {
+          break;
+        }
+
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
         }
       }
     }
