@@ -1,10 +1,15 @@
 package com.strrl.spotify.streaming.core.audio.supplier;
 
+import com.strrl.spotify.streaming.core.exception.PipeAlreadyClosedException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,21 +19,45 @@ import org.jetbrains.annotations.NotNull;
  */
 public class LazyFileInputStream extends InputStream {
 
+  private static final ExecutorService FIFO_FILE_INIT_THREAD_POOL =
+      new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+
   @Nonnull private File target;
   private boolean initialized;
   private InputStream backend;
+  private boolean closed;
 
   public LazyFileInputStream(@Nonnull File target) {
     this.target = target;
     this.initialized = false;
+    this.closed = false;
   }
 
   private synchronized void acquireInitialized() {
+    if (this.closed) {
+      throw PipeAlreadyClosedException.of();
+    }
     if (!this.initialized) {
-      try {
-        this.backend = new FileInputStream(target);
-      } catch (FileNotFoundException e) {
-        throw new RuntimeException(e);
+      FIFO_FILE_INIT_THREAD_POOL.submit(
+          () -> {
+            try {
+              this.backend = new FileInputStream(target);
+              this.initialized = true;
+            } catch (FileNotFoundException e) {
+              throw new RuntimeException(e);
+            }
+          });
+
+      for (; ; ) {
+        if (this.closed || this.initialized) {
+          break;
+        }
+
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException e) {
+          throw new RuntimeException(e);
+        }
       }
     }
   }
@@ -68,6 +97,8 @@ public class LazyFileInputStream extends InputStream {
     if (this.initialized) {
       this.backend.close();
     }
+    this.closed = true;
+    FIFO_FILE_INIT_THREAD_POOL.shutdownNow();
   }
 
   @Override
